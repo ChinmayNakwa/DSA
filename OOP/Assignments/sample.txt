@@ -1,0 +1,92 @@
+import java.io.*;
+import java.util.*;
+
+class Student {
+    int id;
+    String name;
+    int rollNo;
+    String className;
+    float marks;
+
+    public String toString() {
+        return id + "," + name + "," + rollNo + "," + className + "," + marks;
+    }
+}
+
+public class StudentDatabase {
+    static final String FILE_NAME = "students.txt";
+
+    public static void createDatabase() throws IOException {
+        FileWriter fw = new FileWriter(FILE_NAME);
+        for (int i = 1; i <= 5; i++) {
+            Student s = new Student();
+            s.id = i;
+            s.name = "Student" + i;
+            s.rollNo = 100 + i;
+            s.className = "FYIT";
+            s.marks = 75 + i;
+            fw.write(s.toString() + "\n");
+        }
+        fw.close();
+    }
+
+    public static void displayDatabase() throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(FILE_NAME));
+        String line;
+        System.out.println("Student Records:");
+        while ((line = br.readLine()) != null) {
+            System.out.println(line);
+        }
+        br.close();
+    }
+
+    public static void clearRecords() throws IOException {
+        new PrintWriter(FILE_NAME).close();
+    }
+
+    public static void modifyRecord(int rollNo, String newName) throws IOException {
+        File inputFile = new File(FILE_NAME);
+        File tempFile = new File("temp.txt");
+
+        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+        PrintWriter writer = new PrintWriter(new FileWriter(tempFile));
+        String line;
+
+        while ((line = reader.readLine()) != null) {
+            String[] data = line.split(",");
+            if (Integer.parseInt(data[2]) == rollNo) {
+                data[1] = newName;
+                writer.println(String.join(",", data));
+            } else {
+                writer.println(line);
+            }
+        }
+        reader.close();
+        writer.close();
+        inputFile.delete();
+        tempFile.renameTo(inputFile);
+    }
+
+    public static void searchRecord(int rollNo) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(FILE_NAME));
+        String line;
+        boolean found = false;
+        while ((line = br.readLine()) != null) {
+            if (line.contains(String.valueOf(rollNo))) {
+                System.out.println("Found: " + line);
+                found = true;
+                break;
+            }
+        }
+        if (!found) System.out.println("Record not found.");
+        br.close();
+    }
+
+    public static void main(String[] args) throws IOException {
+        createDatabase();
+        displayDatabase();
+        modifyRecord(102, "UpdatedName");
+        searchRecord(102);
+        clearRecords();
+    }
+}
